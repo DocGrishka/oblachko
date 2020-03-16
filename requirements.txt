@@ -5,3 +5,4 @@ flask_login
 requests
 flask_restful
 sqlalchemy
+sqlalchemy_serializer
