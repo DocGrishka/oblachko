@@ -19,7 +19,7 @@ global_init('db/mars_exploers.db')
 api = Api(app)
 url = 'http://127.0.0.1:80/'
 
-
+if __name__ == '__main__':
     # для списка объектов
     api.add_resource(users_resourse.UserListResource, '/api/v2/user')
     api.add_resource(jobs_resoursce.JobsListResource, '/api/v2/jobs')
