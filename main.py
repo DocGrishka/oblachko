@@ -27,4 +27,4 @@ if __name__ == '__main__':
     # для одного объекта
     api.add_resource(users_resourse.UserResource, '/api/v2/users/<int:user_id>')
     api.add_resource(jobs_resoursce.JobsResource, '/api/v2/job/<int:jobs_id>')
-    app.run(port=8080, host='127.0.0.1')
+    app.run(port=80, host='127.0.0.1')
