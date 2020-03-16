@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<div align="center">
+    <h1>{{title}}</h1>
+    {% if current_user.is_authenticated %}
+    <a class="btn btn-secondary" href="/">Back to jobs</a><br><br>
+    <a class="btn btn-secondary" href="/add_departments">Add department</a>
+    {% endif %}
+    {% for i in range(1, n + 1) %}
+    <h2 align="center">Department # {{i}}</h2>
+    <table border="1" width="800px" align="center">
+        <tr>
+            <td>
+                Title of department
+            </td>
+            <td>
+                Chief
+            </td>
+            <td>
+                Members
+            </td>
+            <td>
+                Department email
+            </td>
+        </tr>
+        <tr>
+            {% for j in list_data[i - 1] %}
+            <td>
+                {{j}}
+            </td>
+            {% endfor %}
+        </tr>
+    </table>
+    {% if current_user.is_authenticated and (current_user.id == item[i - 1].chief or current_user.id == 1) %}
+    <br>
+    <div align="center">
+        <a href="/departments/{{ item[i - 1].id }}" class="btn btn-warning">Edit</a>
+        <a href="/departments_delete/{{ item[i - 1].id }}" class="btn btn-danger">Delete</a>
+    </div>
+    {% endif %}
+</div>
+<br>
+{% endfor %}
+{% endblock %}
