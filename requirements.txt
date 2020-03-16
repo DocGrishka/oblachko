@@ -4,3 +4,4 @@ wtforms
 flask_login
 requests
 flask_restful
+sqlalchemy
