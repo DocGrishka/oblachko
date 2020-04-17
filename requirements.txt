@@ -3,6 +3,10 @@ flask_wtf
 wtforms
 flask_login
 requests
+json
+logging
+flask_ngrok
+random
 flask_restful
 sqlalchemy
 sqlalchemy_serializer
