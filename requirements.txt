@@ -4,7 +4,6 @@ wtforms
 flask_login
 requests
 flask_ngrok
-random
 flask_restful
 sqlalchemy
 sqlalchemy_serializer
