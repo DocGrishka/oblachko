@@ -1,5 +1,3 @@
-
-
 from flask import Flask, request
 import logging
 import json
@@ -9,11 +7,10 @@ app = Flask(__name__)
 run_with_ngrok(app)
 logging.basicConfig(level=logging.INFO)
 cities = {
-    'москва': ['1540737/073a30c505eb5c28a6b0', '1652229/52684001c2bf9aa79998'],
+    'москва°': ['1540737/073a30c505eb5c28a6b0', '1652229/52684001c2bf9aa79998'],
     'нью-йорк': ['213044/3562c1d206829b2d1f8e', '213044/406984958b063d25d0e3'],
     'париж': ["1540737/bccf751fd44994cceda3", '1652229/4c4ae6c82fc276440024']
 }
-
 countries = {'москва': 'россия',
              'париж': 'франция',
              'нью-йорк': 'сша'}
@@ -66,17 +63,17 @@ def handle_dialog(res, req):
         if not sessionStorage[user_id]['game_started']:
             if 'да' in req['request']['nlu']['tokens']:
                 if len(sessionStorage[user_id]['guessed_cities']) == 3:
-                    res['response']['text'] = 'Ты отгадал все города!'
+                    res['response']['text'] = 'Ты отгадал все города, ' + sessionStorage[user_id]['first_name'].title() + '!'
                     res['end_session'] = True
                 else:
                     sessionStorage[user_id]['game_started'] = True
                     sessionStorage[user_id]['attempt'] = 1
                     play_game(res, req)
             elif 'нет' in req['request']['nlu']['tokens']:
-                res['response']['text'] = 'Ну и ладно!'
+                res['response']['text'] = 'Ну и ладно, ' + sessionStorage[user_id]['first_name'].title() + '!'
                 res['end_session'] = True
             elif 'Помощь' in req['request']['nlu']['tokens']:
-                res['response']['text'] = 'Эта игра называется Угадай город.\n' \
+                res['response']['text'] = sessionStorage[user_id]['first_name'].title() + ', эта игра называется Угадай город.\n' \
                                           'Вы должны угадать город по картинке.'
                 res['response']['buttons'] = [
                  {
@@ -98,7 +95,8 @@ def handle_dialog(res, req):
                  }
                 ]
             else:
-                res['response']['text'] = 'Не поняла ответа! Так да или нет?'
+                res['response']['text'] = 'Не поняла ответа, ' + sessionStorage[user_id]['first_name'].title() \
+                                          + '! Так да или нет?'
                 res['response']['buttons'] = [
                   {
                       'title': 'Да',
@@ -121,10 +119,10 @@ def handle_dialog(res, req):
         else:
             play_game(res, req)
 def play_game(res, req):
-    if 'Помощь' in req['request']['nlu']['tokens']:
-        res['response']['text'] = 'Эта игра называется Угадай город.\n' \
-                                'Вы должны угадать город по картинке.'
     user_id = req['session']['user_id']
+    if 'Помощь' in req['request']['nlu']['tokens']:
+        res['response']['text'] = sessionStorage[user_id]['first_name'].title() + ', эта игра называется Угадай город.\n' \
+                                'Вы должны угадать город по картинке.'
     attempt = sessionStorage[user_id]['attempt']
     if attempt == 1:
         city = random.choice(list(cities))
@@ -134,20 +132,24 @@ def play_game(res, req):
         sessionStorage[user_id]['country'] = countries[city]
         res['response']['card'] = {}
         res['response']['card']['type'] = 'BigImage'
-        res['response']['card']['title'] = 'Что это за город?'
+        res['response']['card']['title'] = 'Что это за город, ' + sessionStorage[user_id]['first_name'].title()\
+                                           + '?'
         res['response']['card']['image_id'] = cities[city][attempt - 1]
-        res['response']['text'] = 'Тогда сыграем!'
+        res['response']['text'] = 'Тогда сыграем, ' + sessionStorage[user_id]['first_name'].title()\
+                                  + '!'
     else:
         city = sessionStorage[user_id]['city']
         if get_city(req) == city:
-            res['response']['text'] = 'Правильно! А в какой стране этот город?'
+            res['response']['text'] = 'Правильно, ' + sessionStorage[user_id]['first_name'].title()\
+                                      + '! А в какой стране этот город?'
             sessionStorage[user_id]['guessed_cities'].append(city)
             sessionStorage[user_id]['game_started'] = False
             check_city(res, req)
             return
         else:
             if attempt == 3:
-                res['response']['text'] = f'Вы пытались. Это {city.title()}. Сыграем ещё?'
+                res['response']['text'] = f'Вы пытались, ' + sessionStorage[user_id]['first_name'].title()\
+                                          + '. Это {city.title()}. Сыграем ещё?'
                 res['response']['buttons'] = [
                  {
                      'title': 'Да',
@@ -172,9 +174,11 @@ def play_game(res, req):
             else:
                 res['response']['card'] = {}
                 res['response']['card']['type'] = 'BigImage'
-                res['response']['card']['title'] = 'Неправильно. Вот тебе дополнительное фото'
+                res['response']['card']['title'] = 'Неправильно, ' + sessionStorage[user_id]['first_name'].title()\
+                                                   + '. Вот тебе дополнительное фото'
                 res['response']['card']['image_id'] = cities[city][attempt - 1]
-                res['response']['text'] = 'А вот и не угадал!'
+                res['response']['text'] = 'А вот и не угадал, ' + sessionStorage[user_id]['first_name'].title()\
+                                          + '!'
     sessionStorage[user_id]['attempt'] += 1
 def get_city(req):
     for entity in req['request']['nlu']['entities']:
@@ -185,13 +189,14 @@ def get_first_name(req):
         if entity['type'] == 'YANDEX.FIO':
             return entity['value'].get('first_name', None)
 def check_country(res, req):
-    if 'Помощь' in req['request']['nlu']['tokens']:
-        res['response']['text'] = 'Эта игра называется Угадай город.\n' \
-                                'Вы должны угадать город по картинке.'
     user_id = req['session']['user_id']
+    if 'Помощь' in req['request']['nlu']['tokens']:
+        res['response']['text'] = sessionStorage[user_id]['first_name'].title() + ', эта игра называется Угадай город.\n' \
+                                'Вы должны угадать город по картинке.'
     country = sessionStorage[user_id]['country']
     if get_country(req) == country:
-        res['response']['text'] = 'Правильно! Сыграем ещё?'
+        res['response']['text'] = 'Правильно, ' + sessionStorage[user_id]['first_name'].title()\
+                                  + '! Сыграем ещё?'
         res['response']['buttons'] = [
             {
                 'title': 'Да',
@@ -211,7 +216,8 @@ def check_country(res, req):
             }
         ]
         return
-    res['response']['text'] = f'Вы пытались. Это {country.title()}. Сыграем ещё?'
+    res['response']['text'] = f'Вы пытались, ' + sessionStorage[user_id]['first_name'].title()\
+                                               + '. Это {country.title()}. Сыграем ещё?'
     res['response']['buttons'] = [
         {
             'title': 'Да',
