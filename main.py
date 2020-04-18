@@ -1,15 +1,18 @@
 from flask import Flask, request
 import logging
 import json
-import random
-from flask_ngrok import run_with_ngrok
+import requests
+
 app = Flask(__name__)
-run_with_ngrok(app)
+
 logging.basicConfig(level=logging.INFO)
-sessionStorage = {}
+
+
 @app.route('/post', methods=['POST'])
 def main():
+
     logging.info('Request: %r', request.json)
+
     response = {
         'session': request.json['session'],
         'version': request.json['version'],
@@ -17,22 +20,46 @@ def main():
             'end_session': False
         }
     }
+
     handle_dialog(response, request.json)
-    logging.info('Response: %r', response)
+
+    logging.info('Request: %r', response)
+
     return json.dumps(response)
+
+
 def handle_dialog(res, req):
+
     if req['session']['new']:
-        res['response']['text'] = 'Привет! Введите запрос в формате <Переведите слово: "слово"> или ' \
-                                  '<Переведи слово: "слово"> и я верну перевод.'
+
+        res['response']['text'] = 'Привет! Я умею переводить! Напиши: "Переведи ' \
+                                  '%слово или фразу, которое надо перевести%"'
+
         return
-    if 'переведите слово:' in req['request']['original_utterance'].lower() \
-            or 'переведи слово:' in req['request']['original_utterance'].lower():
-        params = {
-            "key": 'trnsl.1.1.20200327T204712Z.1e49d3a0c4a100cd.bc3ab5e8db99fd7bec26e7e84092e4b5aceb054d',
-            "text": req['request']['original_utterance'].split()[-1],
-            "lang": 'ru-en'
-        }
-        response = requests.get("https://translate.yandex.net/api/v1.5/tr.json/translate", params=params)
-        res['response']['text'] = ' '.join(response.json()["text"])
+
+    if req['request']['nlu']['tokens'][0].lower() == 'переведи':
+        res['response']['text'] = translate(
+            " ".join(req['request']['original_utterance'].split(' ')[1:])
+        )
+    else:
+        res['response']['text'] = 'Я тебя не поняла. Напиши: "Переведи ' \
+                                  '%слово или фразу, которое надо перевести%"'
+
+
+def translate(text):
+
+    url = 'https://translate.yandex.net/api/v1.5/tr.json/translate'
+
+    parameters = {
+        "key": "trnsl.1.1.20190317T135934Z.8156cdd912a0a2f0.669070ab2fe6ead9aa5b9e0e94033726cea7bd21",
+        "text": text,
+        "lang": "ru-en"
+    }
+
+    response = requests.get(url, parameters).json()
+
+    return response['text'][0]
+
+
 if __name__ == '__main__':
     app.run()
