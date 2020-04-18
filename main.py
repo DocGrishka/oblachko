@@ -9,7 +9,7 @@ app = Flask(__name__)
 run_with_ngrok(app)
 logging.basicConfig(level=logging.INFO)
 cities = {
-    'москва°': ['1540737/073a30c505eb5c28a6b0', '1652229/52684001c2bf9aa79998'],
+    'москва': ['1540737/073a30c505eb5c28a6b0', '1652229/52684001c2bf9aa79998'],
     'нью-йорк': ['213044/3562c1d206829b2d1f8e', '213044/406984958b063d25d0e3'],
     'париж': ["1540737/bccf751fd44994cceda3", '1652229/4c4ae6c82fc276440024']
 }
